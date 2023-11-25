@@ -25,5 +25,20 @@ public class Email {
         // 3. It contains at least one lowercase letter
         // 4. It contains at least one digit
         // 5. It contains at least one special character. Any character apart from alphabets and digits is a special character
+        if (oldPassword.equals(password) && newPassword.length() >= 8) {
+            String passwordRegex = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$";
+            if (newPassword.matches(passwordRegex)) {
+                password = newPassword;
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        String oldPassword = "Accio@123";
+        String newPassword = "Vahi@@@@";
+        String emailId = "vahid@gmail.com";
+        Email email = new Email(emailId);
+        email.changePassword(oldPassword, newPassword);
+        System.out.println(email.getPassword());
     }
 }
