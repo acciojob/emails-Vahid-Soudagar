@@ -40,4 +40,13 @@ public class Mail {
     public void setMessage(String message) {
         this.message = message;
     }
+
+    @Override
+    public String toString() {
+        return "Mail{" +
+                "date=" + date +
+                ", senderId='" + senderId + '\'' +
+                ", message='" + message + '\'' +
+                '}';
+    }
 }

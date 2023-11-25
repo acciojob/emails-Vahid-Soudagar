@@ -1,17 +1,21 @@
 package com.driver;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Gmail extends Email {
 
     private int inboxCapacity;
     //maximum number of mails inbox can store
-    List<Mail> inbox;
+    private List<Mail> inbox;
     //Inbox: Stores mails. Each mail has date (Date), sender (String), message (String). It is guaranteed that message is distinct for all mails.
-    List<Mail> trash;
+    private List<Mail> trash;
+    private int mailInInboxCount;
     //Trash: Stores mails. Each mail has date (Date), sender (String), message (String)
     public Gmail(String emailId, int inboxCapacity) {
         super(emailId);
+        this.mailInInboxCount = 0;
         this.inboxCapacity = inboxCapacity;
         inbox = new ArrayList<>();
         trash = new ArrayList<>();
@@ -23,11 +27,12 @@ public class Gmail extends Email {
         // 1. Each mail in the inbox is distinct.
         // 2. The mails are received in non-decreasing order. This means that the date of a new mail is greater than equal to the dates of mails received already.
         Mail mail = new Mail(date, sender, message);
-        if (inbox.size() == inboxCapacity) {
+        if (mailInInboxCount >= inboxCapacity) {
             moveOldestMailToTrash();
-        } else {
-            inbox.add(mail);
+            mailInInboxCount--;
         }
+        inbox.add(mail);
+        mailInInboxCount++;
     }
 
     private void moveOldestMailToTrash() {
@@ -44,7 +49,8 @@ public class Gmail extends Email {
             String messageInMail = mail.getMessage();
             if (messageInMail.equals(message)) {
                 trash.add(mail);
-                iterator.remove(); // Use iterator's remove method to avoid ConcurrentModificationException
+                iterator.remove();
+                mailInInboxCount--;
             }
         }
     }
@@ -55,7 +61,7 @@ public class Gmail extends Email {
         if (inbox.isEmpty()) {
             return null;
         } else {
-            Mail mail = inbox.get(inbox.size()-1);
+            Mail mail = inbox.get(inbox.size() - 1);
             return mail.getMessage();
         }
     }
@@ -79,7 +85,8 @@ public class Gmail extends Email {
             int res = 0;
             for (Mail mail : inbox) {
                 Date mailDate = mail.getDate();
-                if (mailDate.compareTo(start) > 0 && mailDate.compareTo(end) < 0) {
+                if (mailDate.compareTo(start) >= 0 && mailDate.compareTo(end) <= 0) {
+                    System.out.println("Mail Date: " + mailDate + ", Start Date: " + start + ", End Date: " + end);
                     res++;
                 }
             }
@@ -89,7 +96,7 @@ public class Gmail extends Email {
 
     public int getInboxSize(){
         // Return number of mails in inbox
-        return inbox.size();
+        return mailInInboxCount;
     }
 
     public int getTrashSize(){
@@ -105,30 +112,5 @@ public class Gmail extends Email {
     public int getInboxCapacity() {
         // Return the maximum number of mails that can be stored in the inbox
         return inboxCapacity;
-    }
-
-    public static void main(String[] args) {
-        Gmail gmail = new Gmail("Vahid@gmail.com", 3);
-        Date date1 = createDate(2023, 10, 5); // 5th November 2023
-        Date date2 = createDate(2023, 10, 10); // 10th November 2023
-        Date date3 = createDate(2023, 10, 15); // 15th November 2023
-
-        // Receive sample mails with specific dates
-        gmail.receiveMail(date1, "Sender1", "Hello, this is message 1.");
-        gmail.receiveMail(date2, "Sender2", "Hello, this is message 2.");
-        gmail.receiveMail(date3, "Sender3", "Hello, this is message 3.");
-
-        Date from = createDate(2023, 10, 6);
-        Date to = createDate(2023, 10, 23);
-
-        System.out.println(gmail.findMailsBetweenDates(from, to));
-        System.out.println(gmail.getInboxSize());
-        gmail.deleteMail("Hello, this is message 1.");
-        System.out.println(gmail.getInboxSize());
-    }
-
-    private static Date createDate(int year, int month, int day) {
-        // Month in Java Date class is 0-based, so we subtract 1 from the month
-        return new Date(year - 1900, month - 1, day);
     }
 }

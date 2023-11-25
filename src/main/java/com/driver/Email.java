@@ -32,13 +32,4 @@ public class Email {
             }
         }
     }
-
-    public static void main(String[] args) {
-        String oldPassword = "Accio@123";
-        String newPassword = "Vahi@@@@";
-        String emailId = "vahid@gmail.com";
-        Email email = new Email(emailId);
-        email.changePassword(oldPassword, newPassword);
-        System.out.println(email.getPassword());
-    }
 }
